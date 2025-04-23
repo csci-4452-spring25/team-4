@@ -1,0 +1,49 @@
+# This workflow applies Terraform infrastructure changes manually
+name: Terraform Infra Apply
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Environment to apply (dev, prod, etc)"
+                required: true
+                default: "dev"
+
+jobs:
+    terraform-apply:
+        runs-on: ubuntu-latest
+        env:
+            AWS_REGION: ${{ secrets.AWS_REGION }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Set up Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Terraform Init
+              working-directory: ./terraform
+              run: terraform init
+
+            - name: Terraform Apply
+              working-directory: ./terraform
+              run: terraform apply -auto-approve -var-file=secrets.tfvars -var="environment=${{ github.event.inputs.environment }}"
+
+            - name: Show Terraform Outputs
+              working-directory: ./terraform
+              run: terraform output
+
+            - name: Set GitHub Actions outputs from Terraform
+              id: tf-outputs
+              working-directory: ./terraform
+              run: |
+                  echo "database_url=$(terraform output -raw database_url)" >> $GITHUB_OUTPUT
+                  echo "redis_url=$(terraform output -raw redis_url)" >> $GITHUB_OUTPUT
+                  echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT

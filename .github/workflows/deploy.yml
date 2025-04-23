@@ -35,8 +35,8 @@ jobs:
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
 
             - name: Login to Amazon ECR
@@ -45,11 +45,11 @@ jobs:
 
             - name: Build, tag, and push image to ECR
               env:
-                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                  AWS_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
               run: |
                   IMAGE_TAG=latest
-                  docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f app/Dockerfile ./app
-                  docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                  docker build -t $AWS_ECR_REGISTRY/$AWS_ECR_REPOSITORY:$IMAGE_TAG -f app/Dockerfile ./app
+                  docker push $AWS_ECR_REGISTRY/$AWS_ECR_REPOSITORY:$IMAGE_TAG
 
             - name: Download ECS task definition
               run: |
@@ -64,8 +64,8 @@ jobs:
             - name: Register new ECS task definition
               id: register-task-def
               run: |
-                  TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
-                  echo "task_def_arn=$TASK_DEF_ARN" >> $GITHUB_OUTPUT
+                  AWS_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
+                  echo "AWS_TASK_DEF_ARN=$AWS_TASK_DEF_ARN" >> $GITHUB_OUTPUT
 
             - name: Update ECS service to use new task definition
               run: |
