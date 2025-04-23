@@ -2,7 +2,7 @@
 	"java.compile.nullAnalysis.mode": "automatic",
 	"java.configuration.updateBuildConfiguration": "automatic",
 	"github.copilot.enable": {
-		"*": false,
+		"*": true,
 		"plaintext": true,
 		"markdown": false,
 		"scminput": false,
