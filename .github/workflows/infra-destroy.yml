@@ -37,7 +37,8 @@ jobs:
               uses: hashicorp/setup-terraform@v3
 
             - name: Write secrets.tfvars file
-              run: echo "${{ github.event.inputs.secrets_tfvars }}" > ./terraform/secrets.tfvars
+              run: |
+                echo "${{ github.event.inputs.secrets_tfvars }}" | sed 's/\\n/\n/g' > ./terraform/secrets.tfvars
 
             - name: Terraform Init
               working-directory: ./terraform
