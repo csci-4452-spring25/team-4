@@ -1,0 +1,37 @@
+# This workflow destroys Terraform infrastructure manually
+name: Terraform Infra Destroy
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Environment to destroy (dev, prod, etc)"
+                required: true
+                default: "dev"
+
+jobs:
+    terraform-destroy:
+        runs-on: ubuntu-latest
+        env:
+            AWS_REGION: ${{ secrets.AWS_REGION }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Set up Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Terraform Init
+              working-directory: ./terraform
+              run: terraform init
+
+            - name: Terraform Destroy
+              working-directory: ./terraform
+              run: terraform destroy -auto-approve -var-file=secrets.tfvars -var="environment=${{ github.event.inputs.environment }}"
