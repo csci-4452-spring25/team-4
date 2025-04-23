@@ -1,5 +1,5 @@
 provider "aws" {
-  region     = "us-west-2"
+  region     = var.aws_region
   access_key = var.access_key
   secret_key = var.secret_key
 }
@@ -8,8 +8,11 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnet_ids" "default" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
 }
 
 resource "random_id" "bucket_id" {
@@ -23,7 +26,7 @@ resource "aws_s3_bucket" "storage" {
 resource "aws_db_subnet_group" "main" {
   name        = "web-app-db-subnet-group"
   description = "Database subnet group for application"
-  subnet_ids  = data.aws_subnet_ids.default.ids
+  subnet_ids  = data.aws_subnets.default.ids
 }
 
 resource "aws_db_instance" "postgres" {
@@ -67,7 +70,7 @@ resource "aws_security_group" "database" {
 resource "aws_elasticache_subnet_group" "main" {
   name        = "web-app-cache-subnet-group"
   description = "Subnet group for Elasticache Redis cluster"
-  subnet_ids  = data.aws_subnet_ids.default.ids
+  subnet_ids  = data.aws_subnets.default.ids
 }
 
 resource "aws_security_group" "redis" {
@@ -189,25 +192,10 @@ resource "aws_ecs_service" "app" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = data.aws_subnet_ids.default.ids
+    subnets          = data.aws_subnets.default.ids
     security_groups  = [aws_security_group.ecr_service_security_group.id]
     assign_public_ip = true
   }
 
   depends_on = [aws_ecs_task_definition.app]
-}
-
-output "database_url" {
-  description = "The DATABASE_URL environment variable for the app."
-  value       = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${aws_db_instance.postgres.db_name}"
-}
-
-output "redis_url" {
-  description = "The REDIS_URL environment variable for the app."
-  value       = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:${aws_elasticache_cluster.redis.cache_nodes[0].port}"
-}
-
-output "s3_bucket" {
-  description = "The S3_BUCKET environment variable for the app."
-  value       = aws_s3_bucket.storage.id
 }

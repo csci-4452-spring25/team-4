@@ -47,3 +47,8 @@ jobs:
                   echo "database_url=$(terraform output -raw database_url)" >> $GITHUB_OUTPUT
                   echo "redis_url=$(terraform output -raw redis_url)" >> $GITHUB_OUTPUT
                   echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
+                  echo "aws_ecr_repository=$(terraform output -raw aws_ecr_repository)" >> $GITHUB_OUTPUT
+                  echo "aws_ecr_registry=$(terraform output -raw aws_ecr_registry)" >> $GITHUB_OUTPUT
+                  echo "aws_ecs_service=$(terraform output -raw aws_ecs_service)" >> $GITHUB_OUTPUT
+                  echo "aws_ecs_cluster=$(terraform output -raw aws_ecs_cluster)" >> $GITHUB_OUTPUT
+                  echo "aws_task_def_arn=$(terraform output -raw aws_task_def_arn)" >> $GITHUB_OUTPUT
