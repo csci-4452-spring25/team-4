@@ -9,6 +9,16 @@ on:
                 required: true
                 default: "dev"
 
+            secrets_tfvars:
+                description: "Content of the secrets.tfvars file"
+                required: false
+                default: |
+                    db_username  = "allan"
+                    db_password  = ""
+                    access_key   = ""
+                    secret_key   = ""
+                    db_name      = "postgres"
+
 jobs:
     terraform-destroy:
         runs-on: ubuntu-latest
@@ -26,10 +36,13 @@ jobs:
             - name: Set up Terraform
               uses: hashicorp/setup-terraform@v3
 
+            - name: Write secrets.tfvars file
+              run: echo "${{ github.event.inputs.secrets_tfvars }}" > ./terraform/secrets.tfvars
+
             - name: Terraform Init
               working-directory: ./terraform
               run: terraform init
 
             - name: Terraform Destroy
               working-directory: ./terraform
-              run: terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}"
+              run: terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}" -var-file=secrets.tfvars
