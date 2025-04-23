@@ -1,0 +1,21 @@
+spring:
+  config:
+    import:
+      - optional:file:.env
+  cloud:
+    aws:
+      s3:
+        endpoint: ${AWS_S3_ENDPOINT}
+        region: ${AWS_S3_REGION}
+        base: "s3://"
+        bucket: "weather"
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ${AWS_REGION}
+
+weather:
+  api:
+    url: https://api.openweathermap.org/data/2.5/weather
+    key: ${OPENWEATHER_APP_ID}

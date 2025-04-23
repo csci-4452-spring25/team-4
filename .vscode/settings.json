@@ -1,0 +1,16 @@
+{
+	"java.compile.nullAnalysis.mode": "automatic",
+	"java.configuration.updateBuildConfiguration": "automatic",
+	"github.copilot.enable": {
+		"*": false,
+		"plaintext": true,
+		"markdown": false,
+		"scminput": false,
+		"python": true,
+		"javascript": true,
+		"zig": false,
+		"rust": false,
+		"scss": true,
+		"java": true
+	}
+}
