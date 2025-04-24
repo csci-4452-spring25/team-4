@@ -27,10 +27,10 @@ jobs:
 
             - name: Collect TF_VAR_ environment variables and write to secrets.tfvars
               run: |
-              echo "" > ./terraform/secrets.tfvars
-              for var in $(printenv | grep ^TF_VAR_ | awk -F= '{print $1}'); do
-                echo "${var#TF_VAR_} = \"$(printenv $var)\"" >> ./terraform/secrets.tfvars
-              done
+                echo "" > ./terraform/secrets.tfvars
+                for var in $(printenv | grep ^TF_VAR_ | awk -F= '{print $1}'); do
+                  echo "${var#TF_VAR_} = \"$(printenv $var)\"" >> ./terraform/secrets.tfvars
+                done
 
             - name: Show contents of secrets.tfvars for debugging
               run: cat ./terraform/secrets.tfvars
