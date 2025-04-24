@@ -34,7 +34,7 @@ jobs:
 
             - name: Terraform Init
               working-directory: ./terraform
-               run: terraform init              
+              run: terraform init              
               
             - name: Terraform Apply
               working-directory: ./terraform
