@@ -27,10 +27,13 @@ jobs:
 
             - name: Collect TF_VAR_ environment variables and write to secrets.tfvars
               run: |
-                echo "" > ./terraform/secrets.tfvars
-                for var in $(printenv | grep ^TF_VAR_ | awk -F= '{print $1}'); do
-                  echo "${var#TF_VAR_} = \"$(printenv $var)\"" >> ./terraform/secrets.tfvars
-                done
+              echo "" > ./terraform/secrets.tfvars
+              for var in $(printenv | grep ^TF_VAR_ | awk -F= '{print $1}'); do
+                echo "${var#TF_VAR_} = \"$(printenv $var)\"" >> ./terraform/secrets.tfvars
+              done
+
+            - name: Show contents of secrets.tfvars for debugging
+              run: cat ./terraform/secrets.tfvars
 
             - name: Terraform Init
               working-directory: ./terraform
@@ -52,7 +55,7 @@ jobs:
                   echo "redis_url=$(terraform output -raw redis_url)" >> $GITHUB_OUTPUT
                   echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
                   echo "aws_ecr_repository=$(terraform output -raw aws_ecr_repository)" >> $GITHUB_OUTPUT
-                  echo "aws_ecr_registry=$(terraform output -raw aws_ecr_registry)" >> $GITHUB_OUTPUT
+                  echo "aws_ecr_registry=$(terraform output -raw aws_ecr_registry)" >>a $GITHUB_OUTPUT
                   echo "aws_ecs_service=$(terraform output -raw aws_ecs_service)" >> $GITHUB_OUTPUT
                   echo "aws_ecs_cluster=$(terraform output -raw aws_ecs_cluster)" >> $GITHUB_OUTPUT
                   echo "aws_task_def_arn=$(terraform output -raw aws_task_def_arn)" >> $GITHUB_OUTPUT
