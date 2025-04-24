@@ -31,10 +31,14 @@ jobs:
                 for var in $(printenv | grep ^TF_VAR_ | awk -F= '{print $1}'); do
                   echo "${var#TF_VAR_} = \"$(printenv $var)\"" >> ./terraform/secrets.tfvars
                 done
+
+            - name: Terraform Init
+              working-directory: ./terraform
+               run: terraform init              
               
             - name: Terraform Apply
               working-directory: ./terraform
-              run: terraform apply -auto-approve -var="environment=${{ github.event.inputs.environment }}" -var-file=secrets.tfvars
+              run: terraform apply -auto-approve -var="environment=${{ github.event.inputs.environment }}" -var-file="secrets.tfvars"
 
             - name: Show Terraform Outputs
               working-directory: ./terraform

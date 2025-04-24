@@ -39,4 +39,4 @@ jobs:
 
             - name: Terraform Destroy
               working-directory: ./terraform
-              run: terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}" -var-file=secrets.tfvars
+              run: terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}" -var-file="secrets.tfvars"
