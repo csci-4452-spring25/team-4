@@ -27,7 +27,11 @@ jobs:
 
             - name: Terraform Init
               working-directory: ./terraform
-              run: terraform init              
+              run: terraform init  
+            
+            - name: Terraform Refresh
+              working-directory: ./terraform
+              run: terraform refresh -var="environment=${{ github.event.inputs.environment }}"
               
             - name: Terraform Apply
               working-directory: ./terraform

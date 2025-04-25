@@ -29,7 +29,11 @@ jobs:
             - name: Terraform Init
               working-directory: ./terraform
               run: terraform init
-              
+
+            - name: Terraform Refresh
+              working-directory: ./terraform
+              run: terraform refresh -var="environment=${{ github.event.inputs.environment }}"
+
             - name: Terraform Destroy
               working-directory: ./terraform
               run: terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}"
