@@ -30,13 +30,9 @@ jobs:
               working-directory: ./terraform
               run: terraform init
 
-            - name: Terraform Refresh
-              working-directory: ./terraform
-              run: terraform refresh -var="environment=${{ github.event.inputs.environment }}"
-
             - name: Terraform Destroy
               working-directory: ./terraform
-              run: terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}"
+              run:  terraform refresh -var="environment=${{ github.event.inputs.environment }}" && terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment }}"
               env:
                 TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
                 TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
