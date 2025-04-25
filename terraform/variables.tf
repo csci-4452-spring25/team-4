@@ -4,24 +4,27 @@ data "external" "env" {
 
 variable "aws_region" {
   type    = string
-  default = ""
+  default = "us-east-1"
 }
 
 variable "db_username" {
   type    = string
-  default = data.external.env.result["DB_USERNAME"]
+  default = "postgres"
+  validation {
+    condition     = length(var.db_username) > 0
+    error_message = "DB username cannot be empty"
+  }
 }
 
 variable "db_password" {
   type      = string
   sensitive = true
   nullable  = false
-  default   = data.external.env.result["DB_PASSWORD"]
 }
 
 variable "db_name" {
   type    = string
-  default = data.external.env.result["DB_NAME"]
+  default = "default_db"
 }
 
 variable "monthly_budget_amount" {
@@ -46,11 +49,9 @@ variable "environment" {
 variable "access_key" {
   type      = string
   sensitive = true
-  default = data.external.env.result["AWS_ACCESS_KEY"]
 }
 
 variable "secret_key" {
   type      = string
   sensitive = true
-  default = data.external.env.result["AWS_SECRET_KEY"]
 }
