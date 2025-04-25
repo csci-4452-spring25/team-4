@@ -1,3 +1,7 @@
+data "external" "env" {
+  program = ["${path.module}/env.sh"]
+}
+
 variable "aws_region" {
   type    = string
   default = ""
@@ -5,18 +9,19 @@ variable "aws_region" {
 
 variable "db_username" {
   type    = string
-  default = "root"
+  default = data.external.env.result["DB_USERNAME"]
 }
 
 variable "db_password" {
   type      = string
   sensitive = true
   nullable  = false
+  default   = data.external.env.result["DB_PASSWORD"]
 }
 
 variable "db_name" {
   type    = string
-  default = "primal"
+  default = data.external.env.result["DB_NAME"]
 }
 
 variable "monthly_budget_amount" {
@@ -41,9 +46,11 @@ variable "environment" {
 variable "access_key" {
   type      = string
   sensitive = true
+  default = data.external.env.result["AWS_ACCESS_KEY"]
 }
 
 variable "secret_key" {
   type      = string
   sensitive = true
+  default = data.external.env.result["AWS_SECRET_KEY"]
 }
