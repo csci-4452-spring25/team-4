@@ -1,7 +1,3 @@
-data "external" "env" {
-  program = ["${path.module}/env.sh"]
-}
-
 variable "aws_region" {
   type    = string
   default = "us-east-1"
