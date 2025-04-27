@@ -61,10 +61,17 @@ jobs:
                   IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.AWS_ECR_REPOSITORY }}:latest
                   jq '.containerDefinitions[0].image = "'"$IMAGE_URI"'"' task-definition.json > new-task-def.json
 
+            - name: Clean ECS task definition JSON
+              run: |
+                  jq 'delpaths([paths(scalars) | select(\
+                      . as $p | \
+                      ["taskDefinitionArn","revision","status","requiresAttributes","compatibilities","registeredAt","registeredBy"] | index($p[-1])
+                  )])' new-task-def.json > clean-task-def.json
+
             - name: Register new ECS task definition
               id: register-task-def
               run: |
-                  AWS_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
+                  AWS_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://clean-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
                   echo "AWS_TASK_DEF_ARN=$AWS_TASK_DEF_ARN" >> $GITHUB_OUTPUT
 
             - name: Update ECS service to use new task definition
