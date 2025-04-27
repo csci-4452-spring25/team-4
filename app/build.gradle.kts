@@ -31,11 +31,17 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // Add Thymeleaf dependency to enable template rendering for the homepage
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
     // Add dotenv-java library to load environment variables from the .env file
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
 
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0"))
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
+
+    // Add org.json dependency for JSON parsing
+    implementation("org.json:json:20250107")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
