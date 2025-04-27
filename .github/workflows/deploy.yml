@@ -69,7 +69,7 @@ jobs:
               id: register-task-def
               run: |
                   AWS_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://clean-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
-                  echo "AWS_TASK_DEF_ARN=$AWS_TASK_DEF_ARN" >> $GITHUB_OUTPUT
+                  echo "task_def_arn=$AWS_TASK_DEF_ARN" >> $GITHUB_OUTPUT
 
             - name: Update ECS service to use new task definition
               run: |
