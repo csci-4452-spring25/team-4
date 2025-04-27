@@ -51,3 +51,14 @@ variable "secret_key" {
   type      = string
   sensitive = true
 }
+
+variable "open_weather_app_id" {
+  type        = string
+  description = "OpenWeather API key"
+  default     = ""
+  sensitive   = true
+  validation {
+    condition     = length(var.open_weather_app_id) > 0
+    error_message = "OpenWeather API key cannot be empty"
+  }
+}

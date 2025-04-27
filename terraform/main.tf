@@ -142,16 +142,24 @@ resource "aws_ecs_task_definition" "app" {
       image = "${aws_ecr_repository.app.repository_url}:latest"
       environment = [
         {
-          name  = "DATABASE_URL"
+          name  = "AWS_DATABASE_URL"
           value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${aws_db_instance.postgres.db_name}"
         },
         {
-          name  = "REDIS_URL"
+          name  = "AWS_REDIS_URL"
           value = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:${aws_elasticache_cluster.redis.cache_nodes[0].port}"
         },
         {
-          name  = "S3_BUCKET"
+          name  = "AWS_S3_ENDPOINT"
           value = aws_s3_bucket.storage.id
+        },
+        {
+          name  = "AWS_S3_REGION"
+          value = var.aws_region
+        },
+        {
+          name  = "AWS_S3_BUCKET"
+          value = aws_s3_bucket.storage.bucket
         }
       ]
       portMappings = [

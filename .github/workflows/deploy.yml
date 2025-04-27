@@ -10,9 +10,9 @@ jobs:
         runs-on: ubuntu-latest
         env:
             AWS_REGION: ${{ secrets.AWS_REGION }}
-            ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-            ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
-            ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+            AWS_ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
+            AWS_ECS_CLUSTER: ${{ secrets.AWS_ECS_CLUSTER }}
+            AWS_ECS_SERVICE: ${{ secrets.AWS_ECS_SERVICE }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
 
             - name: Update image in ECS task definition
               run: |
-                  IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+                  IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.AWS_ECR_REPOSITORY }}:latest
                   jq '.containerDefinitions[0].image = "'"$IMAGE_URI"'"' task-definition.json > new-task-def.json
 
             - name: Register new ECS task definition
@@ -69,4 +69,4 @@ jobs:
 
             - name: Update ECS service to use new task definition
               run: |
-                  aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition ${{ steps.register-task-def.outputs.task_def_arn }}
+                  aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition ${{ steps.register-task-def.outputs.task_def_arn }}
