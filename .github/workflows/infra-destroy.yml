@@ -40,3 +40,4 @@ jobs:
                 TF_VAR_secret_key: ${{ secrets.AWS_SECRET_KEY }}
                 TF_VAR_db_name: ${{ secrets.DB_NAME }}
                 TF_VAR_open_weather_app_id: ${{ secrets.OPEN_WEATHER_APP_ID }}
+                TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
