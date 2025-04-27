@@ -15,6 +15,43 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_availability_zones" "available" {}
+
+# Ensure at least two subnets in different AZs for RDS
+locals {
+  # Only consider private subnets (map_public_ip_on_launch = false)
+  private_subnet_ids = [
+    for subnet_id, subnet in data.aws_subnet.selected :
+    subnet_id if subnet.map_public_ip_on_launch == false
+  ]
+  az_to_private_subnets = {
+    for subnet_id in local.private_subnet_ids :
+      data.aws_subnet.selected[subnet_id].availability_zone => subnet_id
+      ...
+  }
+  azs = keys(local.az_to_private_subnets)
+  az_count = length(local.azs)
+  # Use only the dedicated RDS subnets if they are created, otherwise use private subnets in different AZs
+  effective_subnet_ids = length(aws_subnet.rds.*.id) > 0 ? aws_subnet.rds.*.id : (
+    local.az_count >= 2 ? slice([for az in local.azs : local.az_to_private_subnets[az][0]], 0, 2) : []
+  )
+}
+
+data "aws_subnet" "selected" {
+  for_each = toset(data.aws_subnets.default.ids)
+  id       = each.value
+}
+
+resource "aws_subnet" "rds" {
+  count             = local.az_count < 2 ? 2 : 0
+  vpc_id            = data.aws_vpc.default.id
+  cidr_block        = cidrsubnet(data.aws_vpc.default.cidr_block, 8, count.index)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  tags = {
+    Name = "rds-subnet-${count.index}"
+  }
+}
+
 resource "random_id" "bucket_id" {
   byte_length = 4
 }
@@ -24,9 +61,10 @@ resource "aws_s3_bucket" "storage" {
 }
 
 resource "aws_db_subnet_group" "main" {
-  name        = "web-app-db-subnet-group"
+  name        = "web-app-db-subnet-group-${random_id.bucket_id.hex}"
   description = "Database subnet group for application"
-  subnet_ids  = data.aws_subnets.default.ids
+  subnet_ids  = local.effective_subnet_ids
+  depends_on  = [aws_subnet.rds]
 }
 
 resource "aws_db_instance" "postgres" {
