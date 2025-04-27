@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.weather.services.WeatherService;
+
+import software.amazon.awssdk.services.s3.endpoints.internal.Value.Int;
+
 import org.weather.services.StorageService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +56,7 @@ public class WeatherController {
             }
             String[] cities = citiesInput.split("[\n,]+");
             List<String[]> csvRows = new ArrayList<>();
-            csvRows.add(new String[] { "City", "Date", "Temperature", "Weather", "Description" });
+            csvRows.add(new String[] { "City", "Date", "Weather", "Wind Speed", "Temperature", "Clouds" });
             boolean atLeastOneSuccess = false;
             StringBuilder errorCities = new StringBuilder();
             for (String cityRaw : cities) {
@@ -89,11 +92,22 @@ public class WeatherController {
                     for (int i = 0; i < list.length(); i++) {
                         JSONObject item = list.getJSONObject(i);
                         String date = item.getString("dt_txt");
-                        double temp = item.getJSONObject("main").getDouble("temp");
-                        JSONObject weather = item.getJSONArray("weather").getJSONObject(0);
-                        String main = weather.getString("main");
-                        String desc = weather.getString("description");
-                        csvRows.add(new String[] { displayName, date, String.valueOf(temp), main, desc });
+                        double temp = item.getJSONObject("main").getDouble("temp") - 273.15;
+                        String weather = item.getJSONArray("weather").getJSONObject(0).getString("description");
+                        double windSpeed = item.getJSONObject("wind").getDouble("speed");
+                        Integer clouds = item.getJSONObject("clouds").getInt("all");
+                        String cleanedName = displayName
+                                .split(",")[0]
+                                .trim()
+                                .replaceAll("[^a-zA-Z0-9\\s]", "");
+                        csvRows.add(new String[] {
+                                cleanedName,
+                                date,
+                                weather,
+                                String.valueOf(windSpeed),
+                                String.valueOf(temp),
+                                String.valueOf(clouds)
+                        });
                     }
                     atLeastOneSuccess = true;
                 } catch (Exception ex) {
@@ -142,7 +156,14 @@ public class WeatherController {
     }
 
     @GetMapping("/csv")
-    public String downloadCsv(@RequestParam("key") String key, Model model) {
+    public String downloadCsv(@RequestParam(value = "key", required = false) String key, Model model) {
+        if (key == null || key.isEmpty()) {
+            key = storageService.getLatestCsvKey();
+            if (key == null) {
+                model.addAttribute("error", "No CSV files available.");
+                return "home";
+            }
+        }
         var hasCsv = storageService.hasCsv(key);
         if (!hasCsv) {
             model.addAttribute("error", "CSV file not found: " + key);

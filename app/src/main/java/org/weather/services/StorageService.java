@@ -48,4 +48,13 @@ public class StorageService {
     public boolean hasCsv(String key) {
         return s3Template.objectExists(bucketName, key);
     }
+
+    public String getLatestCsvKey() {
+        var objectResources = s3Template.listObjects(bucketName, "weather-");
+        return objectResources.stream()
+                .map(res -> res.getFilename())
+                .filter(key -> key != null && key.endsWith(".csv"))
+                .max(String::compareTo)
+                .orElse(null);
+    }
 }
