@@ -14,7 +14,11 @@ public class WeatherService {
     private String apiKey;
 
     public String getWeatherUrl(String city) {
-        return apiUrl + "?q=" + city + "&appid=" + apiKey;
+        return apiUrl + "/weather" + "?q=" + city + "&appid=" + apiKey;
+    }
+
+    public String getForecastUrl(String city) {
+        return apiUrl + "/forecast" + "?q=" + city + "&appid=" + apiKey;
     }
 
     public String getWeather(String city) {
@@ -22,5 +26,12 @@ public class WeatherService {
         String url = getWeatherUrl(city);
         String response = restTemplate.getForObject(url, String.class);
         return response;
-    }  
+    }
+
+    public String getForecast(String city) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = getForecastUrl(city);
+        String response = restTemplate.getForObject(url, String.class);
+        return response;
+    }
 }
