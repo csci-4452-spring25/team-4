@@ -64,9 +64,20 @@ jobs:
             - name: Register new ECS task definition
               id: register-task-def
               run: |
-                  AWS_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
+                  AWS_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.taskDefinitionArn' --output text
                   echo "AWS_TASK_DEF_ARN=$AWS_TASK_DEF_ARN" >> $GITHUB_OUTPUT
 
             - name: Update ECS service to use new task definition
               run: |
                   aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition ${{ steps.register-task-def.outputs.task_def_arn }}
+
+            - name: Show web app URL
+              run: |
+                  echo "Web app URL: http://$(aws ecs describe-services --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE --query 'services[0].loadBalancers[0].dnsName' --output text)"
+                  echo "ECS Service: ${{ env.AWS_ECS_SERVICE }}"
+                  echo "ECS Cluster: ${{ env.AWS_ECS_CLUSTER }}"
+                  echo "ECR Repository: ${{ env.AWS_ECR_REPOSITORY }}"
+                  echo "ECR Registry: ${{ steps.login-ecr.outputs.registry }}"
+                  echo "Task Definition ARN: ${{ steps.register-task-def.outputs.task_def_arn }}"
+                  echo "Image URI: $IMAGE_URI"
+                  echo "AWS Region: ${{ env.AWS_REGION }}"
