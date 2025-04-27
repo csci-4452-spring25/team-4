@@ -63,10 +63,7 @@ jobs:
 
             - name: Clean ECS task definition JSON
               run: |
-                  jq 'delpaths([paths(scalars) | select(\
-                      . as $p | \
-                      ["taskDefinitionArn","revision","status","requiresAttributes","compatibilities","registeredAt","registeredBy"] | index($p[-1])
-                  )])' new-task-def.json > clean-task-def.json
+                  jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' new-task-def.json > clean-task-def.json
 
             - name: Register new ECS task definition
               id: register-task-def
