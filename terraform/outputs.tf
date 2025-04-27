@@ -10,9 +10,9 @@ output "redis_url" {
   sensitive   = true
 }
 
-output "s3_bucket" {
+output "s3_bucket_url" {
   description = "The S3_BUCKET environment variable for the app."
-  value       = aws_s3_bucket.storage.id
+  value       = aws_s3_bucket.storage.bucket
 }
 
 output "aws_ecr_repository" {

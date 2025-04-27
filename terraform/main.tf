@@ -160,6 +160,10 @@ resource "aws_ecs_task_definition" "app" {
         {
           name  = "AWS_S3_BUCKET"
           value = aws_s3_bucket.storage.bucket
+        },
+        {
+          name = "OPEN_WEATHER_APP_ID"
+          value = var.open_weather_app_id
         }
       ]
       portMappings = [
