@@ -13,9 +13,17 @@ spring:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
       region:
-        static: ${AWS_REGION}
+        static: ${AWS_S3_REGION}
 
 weather:
   api:
     url: https://api.openweathermap.org/data/2.5
     key: ${OPENWEATHER_APP_ID}
+
+coodinates:
+  api:
+    url: https://api.openweathermap.org/geo/1.0/direct
+    key: ${OPENWEATHER_APP_ID}
+
+storage:
+  bucket: ${AWS_S3_BUCKET}

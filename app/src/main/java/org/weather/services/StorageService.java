@@ -8,25 +8,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import io.awspring.cloud.s3.S3Template;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 @Service
 public class StorageService {
     @Value("${storage.bucket:default}")
     private String bucketName;
 
-    @Value("${storage.base:root}")
+    @Value("${storage.base:weather-data}")
     private Resource basePath;
 
     @Autowired
     private S3Template s3Template;
 
-    public Resource getPath(String city) {
-        try {
-            return basePath.createRelative(city + "/");
-        } catch (java.io.IOException e) {
-            throw new RuntimeException("Failed to create relative resource for city: " + city, e);
-        }
+    private final Logger logger = Logger.getLogger(StorageService.class.getName());
+
+    public Resource getPath(String city) throws IOException {
+        return basePath.createRelative(city + "/");
     }
 
     public String uploadCsv(File file, String key) {
@@ -34,24 +34,18 @@ public class StorageService {
             s3Template.upload(bucketName, key, is);
             return key;
         } catch (Exception e) {
+            e.printStackTrace();
+            logger.severe("Failed to upload CSV to S3: " + e.getMessage());
             throw new RuntimeException("Failed to upload CSV to S3", e);
         }
     }
 
-    public InputStreamResource downloadCsv(String key) {
-        try {
-            var s3Obj = s3Template.download(bucketName, key);
-            return new InputStreamResource(s3Obj.getInputStream());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to download CSV from S3", e);
-        }
+    public InputStreamResource downloadCsv(String key) throws IOException {
+        var s3Obj = s3Template.download(bucketName, key);
+        return new InputStreamResource(s3Obj.getInputStream());
     }
 
     public boolean hasCsv(String key) {
-        try {
-            return s3Template.objectExists(bucketName, key);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to check CSV existence in S3", e);
-        }
+        return s3Template.objectExists(bucketName, key);
     }
 }

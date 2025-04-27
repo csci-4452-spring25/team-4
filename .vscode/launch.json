@@ -1,0 +1,15 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Debug Spring Boot App",
+			"request": "launch",
+			"mainClass": "org.weather.App",
+			"projectName": "app",
+			"cwd": "${workspaceFolder}/app",
+			"args": "",
+			"envFile": "${workspaceFolder}/.env"
+		}
+	]
+}

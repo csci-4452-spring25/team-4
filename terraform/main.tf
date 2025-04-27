@@ -159,7 +159,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "AWS_S3_BUCKET"
-          value = "https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.app.bucket}"
+          value = "https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.storage.bucket}"
         },
         {
           name = "OPEN_WEATHER_APP_ID"

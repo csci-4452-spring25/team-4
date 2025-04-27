@@ -12,7 +12,7 @@ output "redis_url" {
 
 output "s3_bucket_url" {
   description = "The S3_BUCKET_URL environment variable for the app."
-  value       = "https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.app.bucket}"
+  value = "https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.storage.bucket}"
 }
 
 output "aws_ecr_repository" {

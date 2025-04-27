@@ -12,8 +12,9 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
+import java.util.logging.Logger;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +30,7 @@ public class WeatherController {
 
     private final WeatherService weatherService;
     private final StorageService storageService;
+    private final Logger logger = Logger.getLogger(WeatherController.class.getName());
 
     @Autowired
     public WeatherController(WeatherService weatherService, StorageService storageService) {
@@ -59,7 +61,25 @@ public class WeatherController {
                 if (city.isEmpty())
                     continue;
                 try {
-                    String forecastJson = weatherService.getForecast(city);
+                    // Get coordinates for the city
+                    String geoJson = weatherService.getCoordinates(city);
+                    JSONArray geoArr = new JSONArray(geoJson);
+                    if (geoArr.isEmpty()) {
+                        errorCities.append(city).append(", ");
+                        continue;
+                    }
+                    JSONObject geo = geoArr.getJSONObject(0);
+                    double lat = geo.getDouble("lat");
+                    double lon = geo.getDouble("lon");
+                    String country = geo.optString("country", "");
+                    String state = geo.optString("state", "");
+                    String displayName = city;
+                    if (!state.isEmpty())
+                        displayName += ", " + state;
+                    if (!country.isEmpty())
+                        displayName += ", " + country;
+                    // Get forecast by coordinates
+                    String forecastJson = weatherService.getForecastByCoords(lat, lon);
                     JSONObject forecastObj = new JSONObject(forecastJson);
                     if (!forecastObj.has("list")) {
                         errorCities.append(city).append(", ");
@@ -73,16 +93,25 @@ public class WeatherController {
                         JSONObject weather = item.getJSONArray("weather").getJSONObject(0);
                         String main = weather.getString("main");
                         String desc = weather.getString("description");
-                        csvRows.add(new String[] { city, date, String.valueOf(temp), main, desc });
+                        csvRows.add(new String[] { displayName, date, String.valueOf(temp), main, desc });
                     }
                     atLeastOneSuccess = true;
                 } catch (Exception ex) {
-                    errorCities.append(city).append(", ");
+                    if (errorCities.length() > 0) {
+                        errorCities.append(", ");
+                    }
+                    errorCities.append(city);
+                    model.addAttribute("error", "Failed to process city: " + city + ". Error: " + ex.getMessage());
+                    logger.warning("Failed to process city: " + city + ". Error: " + ex.getMessage());
+                    continue;
                 }
             }
             if (!atLeastOneSuccess) {
                 model.addAttribute("error",
                         "No valid weather data found for the entered cities. Please check your input.");
+                if (errorCities.length() > 0) {
+                    model.addAttribute("warning", "Some cities could not be processed: " + errorCities.toString());
+                }
                 return "home";
             }
             // Write CSV to temp file
@@ -91,12 +120,12 @@ public class WeatherController {
                 for (String[] row : csvRows) {
                     pw.println(String.join(",", row));
                 }
+                pw.flush();
+                pw.close();
             }
-            // Upload to S3
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
             String s3Key = "weather-" + timestamp + ".csv";
             storageService.uploadCsv(tempFile.toFile(), s3Key);
-            // Clean up temp file
             Files.deleteIfExists(tempFile);
             model.addAttribute("cities", citiesInput);
             model.addAttribute("csvKey", s3Key);
@@ -107,6 +136,7 @@ public class WeatherController {
             return "home";
         } catch (Exception e) {
             model.addAttribute("error", "Failed to generate CSV: " + e.getMessage());
+            logger.warning("Failed to generate CSV: " + e.getMessage());
             return "home";
         }
     }
@@ -125,7 +155,14 @@ public class WeatherController {
 
     @GetMapping("/csv/download")
     public ResponseEntity<InputStreamResource> downloadCsvFile(@RequestParam("key") String key) {
-        InputStreamResource resource = storageService.downloadCsv(key);
+        InputStreamResource resource;
+        try {
+            resource = storageService.downloadCsv(key);
+        } catch (IOException e) {
+            logger.warning("Failed to download CSV file: " + e.getMessage());
+            return ResponseEntity.status(500).body(null);
+        }
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + key)
                 .contentType(MediaType.parseMediaType("text/csv"))
