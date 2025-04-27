@@ -55,6 +55,7 @@ jobs:
               run: |
                   aws ecs describe-task-definition --task-definition spring-app \
                     --query 'taskDefinition' > task-definition.json
+                  cat task-definition.json
 
             - name: Update image in ECS task definition
               run: |
@@ -74,14 +75,3 @@ jobs:
             - name: Update ECS service to use new task definition
               run: |
                   aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition ${{ steps.register-task-def.outputs.task_def_arn }}
-
-            - name: Show web app URL
-              run: |
-                  echo "Web app URL: http://$(aws ecs describe-services --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE --query 'services[0].loadBalancers[0].dnsName' --output text)"
-                  echo "ECS Service: ${{ env.AWS_ECS_SERVICE }}"
-                  echo "ECS Cluster: ${{ env.AWS_ECS_CLUSTER }}"
-                  echo "ECR Repository: ${{ env.AWS_ECR_REPOSITORY }}"
-                  echo "ECR Registry: ${{ steps.login-ecr.outputs.registry }}"
-                  echo "Task Definition ARN: ${{ steps.register-task-def.outputs.task_def_arn }}"
-                  echo "Image URI: $IMAGE_URI"
-                  echo "AWS Region: ${{ env.AWS_REGION }}"
