@@ -81,6 +81,11 @@ resource "aws_iam_role_policy_attachment" "ecs_cloudwatch_logs" {
 resource "aws_cloudwatch_log_group" "ecs_app" {
   name              = "/ecs/web-app"
   retention_in_days = 7
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [name]
+  }
 }
 
 resource "aws_ecs_task_definition" "app" {
