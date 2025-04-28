@@ -3,26 +3,6 @@ variable "aws_region" {
   default = "us-west-2"
 }
 
-variable "db_username" {
-  type    = string
-  default = "postgres"
-  validation {
-    condition     = length(var.db_username) > 0
-    error_message = "DB username cannot be empty"
-  }
-}
-
-variable "db_password" {
-  type      = string
-  sensitive = true
-  nullable  = false
-}
-
-variable "db_name" {
-  type    = string
-  default = "default_db"
-}
-
 variable "monthly_budget_amount" {
   type    = number
   default = 100

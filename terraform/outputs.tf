@@ -1,15 +1,3 @@
-output "database_url" {
-  description = "The DATABASE_URL environment variable for the app."
-  value       = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${aws_db_instance.postgres.db_name}"
-  sensitive   = true
-}
-
-output "redis_url" {
-  description = "The REDIS_URL environment variable for the app."
-  value       = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:${aws_elasticache_cluster.redis.cache_nodes[0].port}"
-  sensitive   = true
-}
-
 output "s3_bucket_url" {
   description = "The S3_BUCKET_URL environment variable for the app."
   value = "https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.storage.bucket}"
