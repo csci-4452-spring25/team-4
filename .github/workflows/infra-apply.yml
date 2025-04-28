@@ -49,8 +49,6 @@ jobs:
               id: tf-outputs
               working-directory: ./terraform
               run: |
-                  echo "database_url=$(terraform output -raw database_url)" >> $GITHUB_OUTPUT
-                  echo "redis_url=$(terraform output -raw redis_url)" >> $GITHUB_OUTPUT
                   echo "s3_bucket_url=$(terraform output -raw s3_bucket_url)" >> $GITHUB_OUTPUT
                   echo "aws_ecr_repository=$(terraform output -raw aws_ecr_repository)" >> $GITHUB_OUTPUT
                   echo "aws_ecr_registry=$(terraform output -raw aws_ecr_registry)" >>a $GITHUB_OUTPUT
