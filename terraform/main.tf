@@ -15,6 +15,13 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
 data "aws_availability_zones" "available" {}
 
 # Ensure at least two subnets in different AZs for RDS
@@ -37,8 +44,20 @@ locals {
   )
 }
 
+locals {
+  public_subnet_ids = [
+    for subnet_id, subnet in data.aws_subnet.public :
+    subnet_id if subnet.map_public_ip_on_launch == true
+  ]
+}
+
 data "aws_subnet" "selected" {
   for_each = toset(data.aws_subnets.default.ids)
+  id       = each.value
+}
+
+data "aws_subnet" "public" {
+  for_each = toset(data.aws_subnets.public.ids)
   id       = each.value
 }
 
@@ -167,6 +186,16 @@ resource "aws_iam_role_policy_attachment" "ecs_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_cloudwatch_logs" {
+  role       = aws_iam_role.ecs_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
+resource "aws_cloudwatch_log_group" "ecs_app" {
+  name              = "/ecs/web-app"
+  retention_in_days = 7
+}
+
 resource "aws_ecs_task_definition" "app" {
   family                   = "spring-app"
   requires_compatibilities = ["FARGATE"]
@@ -189,7 +218,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "AWS_S3_ENDPOINT"
-          value = aws_s3_bucket.storage.id
+          value = "https://s3.${var.aws_region}.amazonaws.com"
         },
         {
           name  = "AWS_S3_REGION"
@@ -197,7 +226,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "AWS_S3_BUCKET"
-          value = "https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.storage.bucket}"
+          value = aws_s3_bucket.storage.bucket
         },
         {
           name = "OPEN_WEATHER_APP_ID"
@@ -211,6 +240,14 @@ resource "aws_ecs_task_definition" "app" {
           protocol      = "tcp"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_app.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
   execution_role_arn = aws_iam_role.ecs_execution.arn
@@ -242,7 +279,7 @@ resource "aws_ecs_service" "app" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = data.aws_subnets.default.ids
+    subnets          = local.public_subnet_ids
     security_groups  = [aws_security_group.ecr_service_security_group.id]
     assign_public_ip = true
   }
