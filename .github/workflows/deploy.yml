@@ -61,6 +61,7 @@ jobs:
               run: |
                   IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.AWS_ECR_REPOSITORY }}:latest
                   jq '.containerDefinitions[0].image = "'"$IMAGE_URI"'"' task-definition.json > new-task-def.json
+                  cat new-task-def.json
 
             - name: Clean ECS task definition JSON
               run: |
