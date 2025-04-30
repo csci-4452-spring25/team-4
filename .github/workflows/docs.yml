@@ -52,15 +52,18 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
-      - name: Notify Slack on Docs Deployment
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-          text: 'Documentation deployment ${{ job.status }}'
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: always()
+      - name: Send Teams Notification
+        run: |
+            if [ -n "${{ secrets.TEAMS_WEBHOOK_URL }}" ]; then
+            curl -H 'Content-Type: application/json' -d '{
+                "@type": "MessageCard",
+                "@context": "https://schema.org/extensions",
+                "summary": "Test run results from GitHub Actions",
+                "title": "Test Results",
+                "text": "Repository: ${{ github.repository }}\nBranch: ${{ github.ref }}\nStatus: ${{ steps.test.outcome == 'success' && '✅ Tests Passed' || '❌ Tests Failed' }}\n\nTest Output:\n${{ steps.test.outputs.output }}\n\nView run details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "themeColor": "0076D7"
+            }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+            fi
 
   # Deployment job
   deploy:
