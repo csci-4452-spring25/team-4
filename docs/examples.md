@@ -35,11 +35,14 @@ jobs:
           aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition ${{ steps.register-task-def.outputs.task_def_arn }}
 ```
 
----
+## 📝 Example: Weather Data to CSV and S3
+```java
+@PostMapping("/generate-csv")
+public String generateCsv(@RequestParam("cities") String citiesInput, Model model) {
+    // ...existing code...
+    storageService.uploadCsv(tempFile.toFile(), s3Key);
+    // ...existing code...
+}
+```
+- User submits cities → Weather data fetched → CSV generated → Uploaded to S3.
 
-> **Explore the sidebar for detailed sections:**
-> - Introduction
-> - Goals Accomplished
-> - Summary of the Process
-> - Challenges Encountered
-> - Conclusion
