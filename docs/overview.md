@@ -23,7 +23,7 @@ Welcome to the documentation for this cloud-native web application, built with *
 - **CSV Export:** Users can generate and download weather data as CSV files, stored in S3.
 
 ## 🗺️ Architecture Diagram
-<img src="./icons/architecture.svg">
+![Architecture Diagram](./icons/architecture.svg)
 
 ## 📝 Example: Weather Data to CSV and S3
 ```java
