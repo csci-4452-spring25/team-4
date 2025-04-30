@@ -1,0 +1,10 @@
+graph TD;
+    User-->|Web UI|SpringBootApp((Spring Boot App))
+    SpringBootApp-->|REST|OpenWeatherAPI((OpenWeather API))
+    SpringBootApp-->|S3 SDK|S3Bucket((AWS S3 Bucket))
+    SpringBootApp-->|ECS|ECSCluster((AWS ECS Fargate))
+    ECSCluster-->|Logs|CloudWatch((AWS CloudWatch))
+    Dev-->|Push|GitHubActions((GitHub Actions))
+    GitHubActions-->|Terraform|AWSInfra((Terraform AWS Resources))
+    GitHubActions-->|Docker Build/Push|ECR((AWS ECR))
+    ECR-->|Image|ECSCluster

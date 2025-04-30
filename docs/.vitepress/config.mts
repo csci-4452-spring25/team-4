@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -9,16 +9,28 @@ export default defineConfig({
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "Home", link: "/" },
-			{ text: "Examples", link: "/markdown-examples" },
+			{ text: "Introduction", link: "/introduction" },
+			{ text: "Goals", link: "/goals" },
+			{ text: "Process", link: "/process" },
+			{ text: "Challenges", link: "/challenges" },
+			{ text: "Conclusion", link: "/conclusion" },
+			{ text: "Snippets", link: "/examples" },
 		],
 
 		sidebar: [
 			{
-				text: "Examples",
+				text: "Documentation",
 				items: [
-					{ text: "Markdown Examples", link: "/markdown-examples" },
-					{ text: "Runtime API Examples", link: "/api-examples" },
+					{ text: "Introduction", link: "/introduction" },
+					{ text: "Goals Accomplished", link: "/goals" },
+					{ text: "Summary of the Process", link: "/process" },
+					{ text: "Challenges Encountered", link: "/challenges" },
+					{ text: "Conclusion", link: "/conclusion" },
 				],
+			},
+			{
+				text: "Snippets",
+				link: "/examples",
 			},
 		],
 

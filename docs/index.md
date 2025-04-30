@@ -3,23 +3,28 @@
 layout: home
 
 hero:
-  name: "Cloud Showcase"
-  text: "By Kenneth"
-  tagline: My great project tagline
-  actions:
-    - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+    name: "Cloud Showcase"
+    text: "By Kenneth"
+    tagline: My great project tagline
+    actions:
+        - theme: brand
+          text: Overview
+          link: /overview
+        - theme: alt
+          text: Introduction
+          link: /introduction
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    - title: AWS
+      details: Cloud infrastructure and storage powered by AWS.
+      icon:
+          src: ./icons/aws.svg
+    - title: GitHub Actions
+      details: Automated CI/CD pipelines with GitHub Actions.
+      icon:
+          src: ./icons/github.svg
+    - title: Terraform
+      details: Infrastructure as Code managed with Terraform.
+      icon:
+          src: ./icons/tf.svg
 ---
-
