@@ -16,4 +16,4 @@ title: Goals Accomplished
 -   Fully automated infrastructure provisioning and application deployment pipeline.
 -   Secure storage and access management using AWS IAM and S3.
 -   Continuous integration and delivery with automated Docker builds and ECS updates.
--   Documentation and onboarding resources for future developers.
+-   Documentation.

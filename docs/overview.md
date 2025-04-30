@@ -6,7 +6,7 @@ aside: true
 
 # Cloud-Native Spring Boot on AWS
 
-Welcome to the documentation for this cloud-native web application, built with **Spring Boot**, provisioned with **Terraform**, deployed on **AWS ECS**, and automated via **GitHub Actions**. This project demonstrates a modern DevOps workflow, scalable infrastructure, and robust CI/CD practices.
+Welcome to the documentation for this cloud-native web application. It's built with **Spring Boot**, provisioned with **Terraform**, deployed on **AWS ECS**, and automated via **GitHub Actions**. This project demonstrates a modern DevOps workflow, scalable infrastructure, and robust CI/CD practices.
 
 ## 🚀 Quick Overview
 - **Language:** Java (Spring Boot)

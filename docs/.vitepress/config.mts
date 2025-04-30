@@ -9,7 +9,7 @@ export default defineConfig({
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "Home", link: "/" },
-			{ text: "Introduction", link: "/introduction" },
+			{ text: "Introduction", link: "/overview" },
 			{ text: "Goals", link: "/goals" },
 			{ text: "Process", link: "/process" },
 			{ text: "Challenges", link: "/challenges" },
@@ -21,7 +21,7 @@ export default defineConfig({
 			{
 				text: "Documentation",
 				items: [
-					{ text: "Introduction", link: "/introduction" },
+					{ text: "Introduction", link: "/overview" },
 					{ text: "Goals Accomplished", link: "/goals" },
 					{ text: "Summary of the Process", link: "/process" },
 					{ text: "Challenges Encountered", link: "/challenges" },

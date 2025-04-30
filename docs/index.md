@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "Cloud Showcase"
   text: "By Kenneth"
-  tagline: My great project tagline
+  tagline: All codebases eventuallybecome append only
   actions:
     - theme: brand
       text: Overview
